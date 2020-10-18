@@ -8,42 +8,61 @@ import matplotlib.pyplot as plt
 # open cfg file
 cfg = codecs.open('plot.cfg', encoding = 'utf-8', mode = 'r')
 
-# read first line — list of columns
+# read list of y axis columns
 line = cfg.readline().strip()
 line = re.split(' = |, ', line)
-columns = line[1:len(line)]
+if len(line) == 1:
+    sys.exit("ycolumns list is empty")
+ycolumns = line[1:len(line)]
 
-# read second line — list of files
+# read list of x axis columns
 line = cfg.readline().strip()
 line = re.split(' = |, ', line)
+if len(line) == 1:
+    sys.exit("xcolumns list is empty")
+xcolumns = line[1:len(line)]
+if len(xcolumns) == 1 and len(ycolumns) > 1:
+    xcolumns = xcolumns * len(ycolumns)
+if len(xcolumns) != 1 and len(xcolumns) != len(ycolumns):
+    sys.exit("invalid number of xcolumns")
+
+# read list of files
+line = cfg.readline().strip()
+line = re.split(' = |, ', line)
+if len(line) == 1:
+    sys.exit("files list is empty")
 files = line[1:len(line)]
-if len(files) != len(columns):
+if len(files) == 1 and len(ycolumns) > 1:
+    files = files * len(ycolumns)
+if len(files) != 1 and len(files) != len(ycolumns):
     sys.exit("invalid number of files")
 
-# read third line — list of labels
+# read list of labels
 line = cfg.readline().strip()
 line = re.split(' = |, ', line)
-labels = line[1:len(line)]
-if len(labels) != len(columns):
-    sys.exit("invalid number of labels")
+if len(line) == 1:
+    add_legend = False
+else:
+    add_legend = True
+    labels = line[1:len(line)]
 
-# read fourth line — x axis label
+# read x axis label
 line = cfg.readline().strip()
 line = re.split(' = ', line)
 xlabel = line[1]
 
-# read fifth line — y axis label
+# read y axis label
 line = cfg.readline().strip()
 line = re.split(' = ', line)
 ylabel = line[1]
 
-# read sixth line — max point flag
+# read max point flag
 line = cfg.readline().strip()
 line = re.split(' = ', line)
 add_max = int(line[1])
 add_max = bool(add_max)
 
-# read seventh line — plot name
+# read plot name
 line = cfg.readline().strip()
 line = re.split(' = ', line)
 plot_name = line[1]
@@ -67,11 +86,11 @@ mpl.rcParams['pgf.preamble'] = "\\usepackage[T2A]{fontenc} \\usepackage[utf8]{in
 mpl.rcParams["figure.figsize"] = (6.69423, 4)
 
 # create plot
-for i in range(0, len(columns)):
-    data = np.loadtxt(files[i], skiprows = 1, usecols = (0, int(columns[i])))
+for i in range(0, len(ycolumns)):
+    data = np.loadtxt(files[i], skiprows = 1, usecols = (int(xcolumns[i]), int(ycolumns[i])))
     x = data[:,0]
     y = data[:,1]
-    plt.plot(x, y, label = labels[i], color = colors[i])
+    plt.plot(x, y, color = colors[i])
     
     if add_max:
         pos = np.argmax(abs(y))
@@ -83,7 +102,8 @@ for i in range(0, len(columns)):
             fontsize = mpl.rcParams['font.size']*0.75
         )
 
-plt.legend()
+if add_legend:
+    plt.legend(labels)
 plt.xlabel(xlabel)
 plt.ylabel(ylabel)
 plt.grid(axis = 'both')
