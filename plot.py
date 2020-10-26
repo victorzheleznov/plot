@@ -36,6 +36,22 @@ if len(files) == 1 and len(ycolumns) > 1:
     files = files * len(ycolumns)
 if len(files) != 1 and len(files) != len(ycolumns):
     sys.exit("invalid number of files")
+    
+# read skiprows
+line = cfg.readline().strip()
+line = re.split(' = ', line)
+if len(line) == 1:
+    skprws = 1
+else:
+    skprws = int(line[1])
+    
+# read delimiter
+line = cfg.readline().strip()
+line = re.split(' = ', line)
+if len(line) == 1:
+    delim = None
+else:
+    delim = line[1]
 
 # read list of labels
 line = cfg.readline().strip()
@@ -49,12 +65,20 @@ else:
 # read x axis label
 line = cfg.readline().strip()
 line = re.split(' = ', line)
-xlabel = line[1]
+if len(line) == 1:
+    add_xlabel = False
+else:
+    add_xlabel = True
+    xlabel = line[1]
 
 # read y axis label
 line = cfg.readline().strip()
 line = re.split(' = ', line)
-ylabel = line[1]
+if len(line) == 1:
+    add_ylabel = False
+else:
+    add_ylabel = True
+    ylabel = line[1]
 
 # read max point flag
 line = cfg.readline().strip()
@@ -87,7 +111,7 @@ mpl.rcParams["figure.figsize"] = (6.69423, 4)
 
 # create plot
 for i in range(0, len(ycolumns)):
-    data = np.loadtxt(files[i], skiprows = 1, usecols = (int(xcolumns[i]), int(ycolumns[i])))
+    data = np.loadtxt(files[i], skiprows = skprws, delimiter = delim, usecols = (int(xcolumns[i]), int(ycolumns[i])))
     x = data[:,0]
     y = data[:,1]
     plt.plot(x, y, color = colors[i])
@@ -104,8 +128,10 @@ for i in range(0, len(ycolumns)):
 
 if add_legend:
     plt.legend(labels)
-plt.xlabel(xlabel)
-plt.ylabel(ylabel)
+if add_xlabel:
+    plt.xlabel(xlabel)
+if add_ylabel:
+    plt.ylabel(ylabel)
 plt.grid(axis = 'both')
 plt.tight_layout()
 
