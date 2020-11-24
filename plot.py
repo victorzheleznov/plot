@@ -1,105 +1,31 @@
-import codecs
-import re
-import sys
+import configparser
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from itertools import cycle
 
-# open cfg file
-cfg = codecs.open('plot.cfg', encoding = 'utf-8', mode = 'r')
+# read cfg file
+cfg = configparser.ConfigParser(allow_no_value = True)
+cfg.read('plot.cfg', encoding = 'utf-8')
 
-# read list of y axis columns
-line = cfg.readline().strip()
-line = re.split(' = |, ', line)
-if len(line) == 1:
-    sys.exit("ycolumns list is empty")
-ycolumns = line[1:len(line)]
+# save cfg lists into variables
+files = list(map(str.strip, cfg.get('DATA', 'files', fallback = None).split(',')))
+ycols = list(map(str.strip, cfg.get('DATA', 'ycols', fallback = None).split(',')))
+xcols = list(map(str.strip, cfg.get('DATA', 'xcols', fallback = None).split(',')))
+labels = list(map(str.strip, cfg.get('PLOT', 'labels', fallback = None).split(',')))
 
-# read list of x axis columns
-line = cfg.readline().strip()
-line = re.split(' = |, ', line)
-if len(line) == 1:
-    sys.exit("xcolumns list is empty")
-xcolumns = line[1:len(line)]
-if len(xcolumns) == 1 and len(ycolumns) > 1:
-    xcolumns = xcolumns * len(ycolumns)
-if len(xcolumns) != 1 and len(xcolumns) != len(ycolumns):
-    sys.exit("invalid number of xcolumns")
-
-# read list of files
-line = cfg.readline().strip()
-line = re.split(' = |, ', line)
-if len(line) == 1:
-    sys.exit("files list is empty")
-files = line[1:len(line)]
-if len(files) == 1 and len(ycolumns) > 1:
-    files = files * len(ycolumns)
-if len(files) != 1 and len(files) != len(ycolumns):
-    sys.exit("invalid number of files")
-    
-# read skiprows
-line = cfg.readline().strip()
-line = re.split(' = ', line)
-if len(line) == 1:
-    skprws = 1
-else:
-    skprws = int(line[1])
-    
-# read delimiter
-line = cfg.readline().strip()
-line = re.split(' = ', line)
-if len(line) == 1:
-    delim = None
-else:
-    delim = line[1]
-
-# read list of labels
-line = cfg.readline().strip()
-line = re.split(' = |, ', line)
-if len(line) == 1:
-    add_legend = False
-else:
-    add_legend = True
-    labels = line[1:len(line)]
-
-# read x axis label
-line = cfg.readline().strip()
-line = re.split(' = ', line)
-if len(line) == 1:
-    add_xlabel = False
-else:
-    add_xlabel = True
-    xlabel = line[1]
-
-# read y axis label
-line = cfg.readline().strip()
-line = re.split(' = ', line)
-if len(line) == 1:
-    add_ylabel = False
-else:
-    add_ylabel = True
-    ylabel = line[1]
-
-# read max point flag
-line = cfg.readline().strip()
-line = re.split(' = ', line)
-add_max = int(line[1])
-add_max = bool(add_max)
-
-# read plot name
-line = cfg.readline().strip()
-line = re.split(' = ', line)
-plot_name = line[1]
-
-cfg.close()
-
-# colors list
+# define colors list
 colors = [
     '#e6194b', '#3cb44b', '#0082c8', '#f58231', '#911eb4', '#46f0f0', 
     '#f032e6', '#d2f53c', '#fabebe', '#008080', '#e6beff', '#aa6e28',
     '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000080',
     '#808080'
 ]
+
+# create cycle variables
+cycolors = cycle(colors)
+cyycols = cycle(ycols)
+cyxcols = cycle(xcols)
 
 # set rc parameters
 mpl.use('pgf')
@@ -110,33 +36,39 @@ mpl.rcParams['pgf.preamble'] = "\\usepackage[T2A]{fontenc} \\usepackage[utf8]{in
 mpl.rcParams["figure.figsize"] = (6.69423, 4)
 
 # create plot
-for i in range(0, len(ycolumns)):
-    data = np.loadtxt(files[i], skiprows = skprws, delimiter = delim, usecols = (int(xcolumns[i]), int(ycolumns[i])))
+for f in files:
+    print(f'plot `{f}` file')
+    
+    data = np.loadtxt(f, usecols = (int(next(cyxcols)), int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delimiter', fallback = None))
     x = data[:,0]
     y = data[:,1]
-    plt.plot(x, y, color = colors[i])
     
-    if add_max:
+    if cfg.getboolean('FLAGS', 'subtract_x_start_point', fallback = None):
+        y = y - y[0]
+    
+    plt.plot(x, y, color = next(cycolors))
+    
+    if cfg.getboolean('FLAGS', 'add_max', fallback = False):
         pos = np.argmax(abs(y))
-        plt.plot(x[pos], y[pos], marker = 'x', color = colors[i])
+        plt.plot(x[pos], y[pos], color = next(cycolors), label = '_hidden', marker = 'x')
         plt.annotate(
             text = ('%.2f' % (y[pos])), 
-            xy = (x[pos], y[pos]), xycoords = 'data', 
-            xytext = (3, 5), textcoords = 'offset points', 
+            xy = (x[pos], y[pos]),
+            xycoords = 'data', 
+            xytext = (3, 5), 
+            textcoords = 'offset points', 
             fontsize = mpl.rcParams['font.size']*0.75
         )
 
-if add_legend:
-    plt.legend(labels)
-if add_xlabel:
-    plt.xlabel(xlabel)
-if add_ylabel:
-    plt.ylabel(ylabel)
+# add plot elements
+plt.title(cfg.get('PLOT', 'title', fallback = None))
+plt.legend(labels, loc = "upper right")
+plt.xlabel(cfg.get('PLOT', 'xlabel', fallback = None))
+plt.ylabel(cfg.get('PLOT', 'ylabel', fallback = None))
 plt.grid(axis = 'both')
 plt.tight_layout()
 
-# export pgf
+# export
+plot_name = cfg.get('PLOT', 'plot_name', fallback = 'plot')
 plt.savefig(plot_name + '.pgf')
-
-# export png
 plt.savefig(plot_name + '.png', dpi = 300)
