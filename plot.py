@@ -43,7 +43,7 @@ for f in files:
     x = data[:,0]
     y = data[:,1]
     
-    if cfg.getboolean('FLAGS', 'subtract_x_start_point', fallback = None):
+    if cfg.getboolean('FLAGS', 'subtract_x_start_point', fallback = False):
         y = y - y[0]
     
     c = next(cycolors)
