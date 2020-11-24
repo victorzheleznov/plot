@@ -15,7 +15,7 @@ mpl.rcParams["figure.figsize"] = (6.69423, 4)
 
 # get cfg files
 if len(sys.argv) > 1:
-    cfgfiles = sys.argv[1:]
+    cfgfiles = [s + '.cfg' for s in sys.argv[1:]]
 else:
     cfgfiles = 'plot.cfg'
 
@@ -50,9 +50,14 @@ for c in cfgfiles:
     for f in files:
         print(f'plot `{f}` file', flush = True)
         
-        data = np.loadtxt(f, usecols = (int(next(cyxcols)), int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
-        x = data[:,0]
-        y = data[:,1]
+        xcol = int(next(cyxcols))
+        if xcol < 0:
+            y = np.loadtxt(f, usecols = (int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
+            x = np.arange(0, len(y))
+        else:
+            data = np.loadtxt(f, usecols = (xcol, int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
+            x = data[:,0]
+            y = data[:,1]
         
         if cfg.getboolean('FLAGS', 'subtract_x_start_point', fallback = False):
             x = x - x[0]
@@ -62,12 +67,12 @@ for c in cfgfiles:
         x = x * cfg.getfloat('TRANSFORM', 'xscale', fallback = 1.0)
         y = y * cfg.getfloat('TRANSFORM', 'yscale', fallback = 1.0)
         
-        col = next(cycolors)
-        plt.plot(x, y, color = col, label = next(cylabels))
+        color = next(cycolors)
+        plt.plot(x, y, color, label = next(cylabels))
         
         if cfg.getboolean('FLAGS', 'add_max', fallback = False):
             pos = np.argmax(abs(y))
-            plt.plot(x[pos], y[pos], color = col, label = '_hidden', marker = 'x')
+            plt.plot(x[pos], y[pos], color, label = '_hidden', marker = 'x')
             plt.annotate(
                 s = ('%.2f' % (y[pos])), 
                 xy = (x[pos], y[pos]),
