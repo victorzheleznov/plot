@@ -46,11 +46,12 @@ for f in files:
     if cfg.getboolean('FLAGS', 'subtract_x_start_point', fallback = None):
         y = y - y[0]
     
-    plt.plot(x, y, color = next(cycolors))
+    c = next(cycolors)
+    plt.plot(x, y, color = c)
     
     if cfg.getboolean('FLAGS', 'add_max', fallback = False):
         pos = np.argmax(abs(y))
-        plt.plot(x[pos], y[pos], color = next(cycolors), label = '_hidden', marker = 'x')
+        plt.plot(x[pos], y[pos], color = c, label = '_hidden', marker = 'x')
         plt.annotate(
             text = ('%.2f' % (y[pos])), 
             xy = (x[pos], y[pos]),
