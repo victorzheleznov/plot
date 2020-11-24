@@ -9,9 +9,9 @@ cfg = configparser.ConfigParser(allow_no_value = True)
 cfg.read('plot.cfg', encoding = 'utf-8')
 
 # save cfg lists into variables
-files = list(map(str.strip, cfg.get('DATA', 'files', fallback = None).split(',')))
-ycols = list(map(str.strip, cfg.get('DATA', 'ycols', fallback = None).split(',')))
-xcols = list(map(str.strip, cfg.get('DATA', 'xcols', fallback = None).split(',')))
+files = list(map(str.strip, cfg.get('DATA', 'files').split(',')))
+ycols = list(map(str.strip, cfg.get('DATA', 'ycols').split(',')))
+xcols = list(map(str.strip, cfg.get('DATA', 'xcols').split(',')))
 labels = list(map(str.strip, cfg.get('PLOT', 'labels', fallback = None).split(',')))
 
 # define colors list
@@ -26,6 +26,7 @@ colors = [
 cycolors = cycle(colors)
 cyycols = cycle(ycols)
 cyxcols = cycle(xcols)
+cylabels = cycle(labels)
 
 # set rc parameters
 mpl.use('pgf')
@@ -39,21 +40,26 @@ mpl.rcParams["figure.figsize"] = (6.69423, 4)
 for f in files:
     print(f'plot `{f}` file')
     
-    data = np.loadtxt(f, usecols = (int(next(cyxcols)), int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delimiter', fallback = None))
+    data = np.loadtxt(f, usecols = (int(next(cyxcols)), int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
     x = data[:,0]
     y = data[:,1]
     
     if cfg.getboolean('FLAGS', 'subtract_x_start_point', fallback = False):
+        x = x - x[0]
+    if cfg.getboolean('FLAGS', 'subtract_y_start_point', fallback = False):
         y = y - y[0]
+        
+    x = x * cfg.getfloat('TRANSFORM', 'xscale', fallback = 1.0)
+    y = y * cfg.getfloat('TRANSFORM', 'yscale', fallback = 1.0)
     
     c = next(cycolors)
-    plt.plot(x, y, color = c)
+    plt.plot(x, y, color = c, label = next(cylabels))
     
     if cfg.getboolean('FLAGS', 'add_max', fallback = False):
         pos = np.argmax(abs(y))
         plt.plot(x[pos], y[pos], color = c, label = '_hidden', marker = 'x')
         plt.annotate(
-            text = ('%.2f' % (y[pos])), 
+            s = ('%.2f' % (y[pos])), 
             xy = (x[pos], y[pos]),
             xycoords = 'data', 
             xytext = (3, 5), 
@@ -63,9 +69,11 @@ for f in files:
 
 # add plot elements
 plt.title(cfg.get('PLOT', 'title', fallback = None))
-plt.legend(labels, loc = "upper right")
+plt.legend()
 plt.xlabel(cfg.get('PLOT', 'xlabel', fallback = None))
 plt.ylabel(cfg.get('PLOT', 'ylabel', fallback = None))
+plt.xlim(cfg.getfloat('PLOT', 'xmin', fallback = None), cfg.getfloat('PLOT', 'xmax', fallback = None))
+plt.ylim(cfg.getfloat('PLOT', 'ymin', fallback = None), cfg.getfloat('PLOT', 'ymax', fallback = None))
 plt.grid(axis = 'both')
 plt.tight_layout()
 
