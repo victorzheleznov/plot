@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import configparser
 import numpy as np
 import matplotlib as mpl
@@ -93,7 +93,7 @@ for c in cfgfiles:
     plt.grid(axis = 'both')
     
     # export
-    plot_name = cfg.get('PLOT', 'plot_name', fallback = 'plot')
+    plot_name = cfg.get('PLOT', 'plot_name', fallback = os.path.splitext(c)[0])
     plt.savefig(plot_name + '.pgf')
     plt.savefig(plot_name + '.png', dpi = 300)
     
