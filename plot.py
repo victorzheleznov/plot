@@ -53,12 +53,12 @@ for c in cfgfiles:
         xcol = int(next(cyxcols))
         if xcol < 0:
             data = np.loadtxt(f, usecols = (int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
-            y = data[::cfg.getint('TRANSFORM', 'step', fallback = 1)]
+            y = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data)):cfg.getint('TRANSFORM', 'step', fallback = 1)]
             x = np.arange(0, len(y))
         else:
             data = np.loadtxt(f, usecols = (xcol, int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
-            x = data[::cfg.getint('TRANSFORM', 'step', fallback = 1),0]
-            y = data[::cfg.getint('TRANSFORM', 'step', fallback = 1),1]
+            x = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data[:,0])):cfg.getint('TRANSFORM', 'step', fallback = 1),0]
+            y = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data[:,1])):cfg.getint('TRANSFORM', 'step', fallback = 1),1]
         
         if cfg.getboolean('FLAGS', 'subtract_x_start_point', fallback = False):
             x = x - x[0]
