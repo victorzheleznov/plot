@@ -11,7 +11,7 @@ mpl.rcParams['font.family'] = 'serif'
 mpl.rcParams['pgf.texsystem'] = 'pdflatex'
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['pgf.preamble'] = "\\usepackage[T2A]{fontenc} \\usepackage[utf8]{inputenc} \\usepackage[english,russian]{babel} \\DeclareUnicodeCharacter{2212}{-}"
-mpl.rcParams["figure.figsize"] = (6.69423, 4)
+mpl.rcParams['figure.figsize'] = (6.69423, 4)
 
 # define colors list
 colors = [
