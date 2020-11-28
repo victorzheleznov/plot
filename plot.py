@@ -13,6 +13,14 @@ mpl.rcParams['text.usetex'] = True
 mpl.rcParams['pgf.preamble'] = "\\usepackage[T2A]{fontenc} \\usepackage[utf8]{inputenc} \\usepackage[english,russian]{babel} \\DeclareUnicodeCharacter{2212}{-}"
 mpl.rcParams["figure.figsize"] = (6.69423, 4)
 
+# define colors list
+colors = [
+    '#e6194b', '#3cb44b', '#0082c8', '#f58231', '#911eb4', '#46f0f0', 
+    '#f032e6', '#d2f53c', '#fabebe', '#008080', '#e6beff', '#aa6e28',
+    '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000080',
+    '#808080'
+]
+
 # get cfg files
 if len(sys.argv) > 1:
     cfgfiles = [s + '.cfg' for s in sys.argv[1:]]
@@ -31,14 +39,6 @@ for c in cfgfiles:
     ycols = list(map(str.strip, cfg.get('DATA', 'ycols').split(',')))
     xcols = list(map(str.strip, cfg.get('DATA', 'xcols').split(',')))
     labels = list(map(str.strip, cfg.get('PLOT', 'labels', fallback = None).split(',')))
-    
-    # define colors list
-    colors = [
-        '#e6194b', '#3cb44b', '#0082c8', '#f58231', '#911eb4', '#46f0f0', 
-        '#f032e6', '#d2f53c', '#fabebe', '#008080', '#e6beff', '#aa6e28',
-        '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000080',
-        '#808080'
-    ]
     
     # create cycle variables
     cycolors = cycle(colors)
@@ -60,9 +60,9 @@ for c in cfgfiles:
             x = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data[:,0])):cfg.getint('TRANSFORM', 'step', fallback = 1),0]
             y = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data[:,1])):cfg.getint('TRANSFORM', 'step', fallback = 1),1]
         
-        if cfg.getboolean('FLAGS', 'subtract_x_start_point', fallback = False):
+        if cfg.getboolean('FLAGS', 'subtract_x0', fallback = False):
             x = x - x[0]
-        if cfg.getboolean('FLAGS', 'subtract_y_start_point', fallback = False):
+        if cfg.getboolean('FLAGS', 'subtract_y0', fallback = False):
             y = y - y[0]
             
         x = x * cfg.getfloat('TRANSFORM', 'xscale', fallback = 1.0)
