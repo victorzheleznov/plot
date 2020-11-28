@@ -1,4 +1,4 @@
-# plot — multipurpose script to plot data files
+# plot — simple script to plot data files
 
 ## Overview
 
@@ -30,6 +30,7 @@ Some remarks about configuration  parameters:
 - `files`, `xcols`, `ycols` parameters are mandatory;
 - lists are comma separated (like in `files` example below);
 - number of plotted lines is equal to the number of data files;
+- if `xcols < 0`, then y-axis data will be plotted against data index;
 - text parameters can be written as LaTeX math: `labels = $y_1$, $y_2$`.
 - `step` can be used for large data files to reduce `.png` and `.pgf` files size.
 
