@@ -21,7 +21,7 @@ In pdfLaTeX you should use utf-8 encoding and define the following lines to avoi
 \usepackage[utf8]{inputenc}
 \DeclareUnicodeCharacter{2212}{-}
 ```
-You always can fork this repo and define your own rc parameters for `matplotlib` (don't forget to change `plt.savefig` if you change backend) and colors list inside `plot.py`.
+You can always fork this repo and define your own rc parameters for `matplotlib` (don't forget to change `plt.savefig` if you change backend) and colors list inside `plot.py`.
 
 ## Configuration parameters
 
@@ -50,8 +50,8 @@ Section | Parameter | Description | Example
 || `xmax` | upper x-axis limit | `xmax = 360` 
 || `ymin` | lower y-axis limit | `ymin = -100` 
 || `ymax` | upper y-axis limit | `ymax = 100` 
-|| `plot_name` | output files name | `plot_name = test` 
-`FLAGS` | `add_max` | show absolute max of y-axis data | `add_max = 0` 
+|| `plot_name` | output graphic files name | `plot_name = test` 
+`FLAGS` | `add_max` | add absolute max of y-axis data | `add_max = 0` 
 || `subtract_x0` | subtract x-axis data start point | `subtract_x0 = 1` 
 || `subtract_y0` | subtract y-axis data start point | `subtract_y0 = 1` 
 `TRANSFORM` | `xscale` | scale factor for x-axis | `xscale = 0.0005`
