@@ -42,21 +42,25 @@ for c in cfgfiles:
     
     # create cycle variables
     cycolors = cycle(colors)
+    cyfiles = cycle(files)
     cyycols = cycle(ycols)
     cyxcols = cycle(xcols)
     cylabels = cycle(labels)
         
     # create plot
-    for f in files:
-        print(f'plot `{f}` file', flush = True)
-        
+    for i in range(0, max(len(files), len(ycols))):
+        file = next(cyfiles)
         xcol = int(next(cyxcols))
+        ycol = int(next(cyycols))
+        
+        print(f'plot `{file}` file using ({xcol},{ycol})', flush = True)
+        
         if xcol < 0:
-            data = np.loadtxt(f, usecols = (int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
+            data = np.loadtxt(file, usecols = (ycol), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
             y = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data)):cfg.getint('TRANSFORM', 'step', fallback = 1)]
             x = np.arange(0, len(y))
         else:
-            data = np.loadtxt(f, usecols = (xcol, int(next(cyycols))), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
+            data = np.loadtxt(file, usecols = (xcol, ycol), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
             x = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data[:,0])):cfg.getint('TRANSFORM', 'step', fallback = 1),0]
             y = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data[:,1])):cfg.getint('TRANSFORM', 'step', fallback = 1),1]
         
@@ -75,7 +79,7 @@ for c in cfgfiles:
             pos = np.argmax(abs(y))
             plt.plot(x[pos], y[pos], color, label = '_hidden', marker = 'x')
             plt.annotate(
-                s = ('%.2f' % (y[pos])), 
+                text = ('%.2f' % (y[pos])), 
                 xy = (x[pos], y[pos]),
                 xycoords = 'data', 
                 xytext = (3, 5), 
