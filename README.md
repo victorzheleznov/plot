@@ -29,7 +29,8 @@ Some remarks about configuration  parameters:
 - if parameter is not needed, it should be removed from configuration  file;
 - `files`, `xcols`, `ycols` parameters are mandatory;
 - lists are comma separated (like in `files` example below);
-- number of plotted lines is equal to the number of data files;
+- lengths of `files`, `xcols`, `ycols` lists are independent — so it's possible to plot different y-columns with respect to one x-column without defining `xcols = 0, 0, 0` etc.;
+- number of plotted lines is equal to max of `files` and `ycols` lengths;
 - if `xcols < 0`, then y-axis data will be plotted against data index;
 - text parameters can be written as LaTeX math: `labels = $y_1$, $y_2$`.
 - `step` can be used for large data files to reduce `.png` and `.pgf` files size.
