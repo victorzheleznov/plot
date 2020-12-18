@@ -5,6 +5,15 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from itertools import cycle
 
+# import functions for possible formulas evaluation in cfg
+from math import pi, e
+from math import exp, log
+from math import cos, sin, tan
+from math import acos, asin, atan
+from math import cosh, sinh, tanh
+from math import acosh, asinh, atanh
+from math import degrees, radians
+
 # set rc parameters
 mpl.use('pgf')
 mpl.rcParams['font.family'] = 'serif'
@@ -25,7 +34,7 @@ colors = [
 if len(sys.argv) > 1:
     cfgfiles = [s + '.cfg' for s in sys.argv[1:]]
 else:
-    cfgfiles = 'plot.cfg'
+    cfgfiles = ['plot.cfg']
 
 for c in cfgfiles:
     print(f'------ CFG `{c}` ------', flush = True)
@@ -57,20 +66,20 @@ for c in cfgfiles:
         
         if xcol < 0:
             data = np.loadtxt(file, usecols = (ycol), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
-            y = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data)):cfg.getint('TRANSFORM', 'step', fallback = 1)]
+            y = data[eval(cfg.get('TRANSFORM', 'start', fallback = '0')):eval(cfg.get('TRANSFORM', 'end', fallback = str(len(data[:,1])))):eval(cfg.get('TRANSFORM', 'step', fallback = '1'))]
             x = np.arange(0, len(y))
         else:
             data = np.loadtxt(file, usecols = (xcol, ycol), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
-            x = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data[:,0])):cfg.getint('TRANSFORM', 'step', fallback = 1),0]
-            y = data[cfg.getint('TRANSFORM', 'start', fallback = 0):cfg.getint('TRANSFORM', 'end', fallback = len(data[:,1])):cfg.getint('TRANSFORM', 'step', fallback = 1),1]
+            x = data[eval(cfg.get('TRANSFORM', 'start', fallback = '0')):eval(cfg.get('TRANSFORM', 'end', fallback = str(len(data[:,1])))):eval(cfg.get('TRANSFORM', 'step', fallback = '1')),0]
+            y = data[eval(cfg.get('TRANSFORM', 'start', fallback = '0')):eval(cfg.get('TRANSFORM', 'end', fallback = str(len(data[:,1])))):eval(cfg.get('TRANSFORM', 'step', fallback = '1')),1]
         
         if cfg.getboolean('FLAGS', 'subtract_x0', fallback = False):
             x = x - x[0]
         if cfg.getboolean('FLAGS', 'subtract_y0', fallback = False):
             y = y - y[0]
             
-        x = x * cfg.getfloat('TRANSFORM', 'xscale', fallback = 1.0)
-        y = y * cfg.getfloat('TRANSFORM', 'yscale', fallback = 1.0)
+        x = x * eval(cfg.get('TRANSFORM', 'xscale', fallback = '1.0'))
+        y = y * eval(cfg.get('TRANSFORM', 'yscale', fallback = '1.0'))
         
         color = next(cycolors)
         plt.plot(x, y, color, label = next(cylabels))
