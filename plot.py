@@ -84,7 +84,7 @@ for c in cfgfiles:
 
 		if xcol < 0:
 			data = np.loadtxt(file, usecols = (ycol), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
-			y = data[eval(cfg.get('TRANSFORM', 'start', fallback = '0')):eval(cfg.get('TRANSFORM', 'end', fallback = str(len(data[:,1])))):eval(cfg.get('TRANSFORM', 'step', fallback = '1'))]
+			y = data[eval(cfg.get('TRANSFORM', 'start', fallback = '0')):eval(cfg.get('TRANSFORM', 'end', fallback = str(len(data)))):eval(cfg.get('TRANSFORM', 'step', fallback = '1'))]
 			x = np.arange(0, len(y))
 		else:
 			data = np.loadtxt(file, usecols = (xcol, ycol), skiprows = cfg.getint('DATA', 'skiprows', fallback = 0), delimiter = cfg.get('DATA', 'delim', fallback = None))
